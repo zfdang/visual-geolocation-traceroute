@@ -75,6 +75,8 @@ Parse geolocation from ip-api.com ...
 
 This file will be opened automatically. If don't, please open google-maps.html manually. 
 
+Click Here to see example: [Visual Traceroute](https://traceroute.zfdang.com/google-maps.html)
+
 You will see visual traceroute information like:
 
 ![](demo.png)
