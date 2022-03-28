@@ -45,6 +45,10 @@ HOST: zfdang-mac                  Loss%   Snt   Last   Avg  Best  Wrst StDev
 
 	sudo python geo-traceroute.py -h w1.zfdang.com -c 10
 	
+NOTE: You might have to modify the path to mtr in the script:
+
+	mtr_cmd = "/usr/local/Cellar/mtr/0.95/sbin/mtr"
+
 The output is something like:
 
 ```
@@ -67,5 +71,10 @@ Parse geolocation from ip-api.com ...
  15.|-- 152.70.248.50 (Oracle Cloud Infrastructure (ap-seoul-1); Oracle Corporation; Seoul; Seoul; South Korea)             10.0%    10   65.1  65.9  64.9  67.5   1.0
 ```
 
+## open google-maps.html in browser
 
+You will see visual traceroute information like:
 
+![](demo.png)
+
+.end.

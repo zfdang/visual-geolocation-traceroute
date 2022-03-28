@@ -8,7 +8,6 @@ import re
 # you might need to change this line to locate mtr command
 mtr_cmd = "/usr/local/Cellar/mtr/0.95/sbin/mtr"
 
-
 def usage():
 	print "$python process.py -h your_host";
 
@@ -25,22 +24,29 @@ def ip_lookup(ipstr):
 
     string = response.read().decode('utf-8')
     geos = json.loads(string)
+    return geos
+
+def geos_tostring(geos):
     result = ""
-    if(geos['status'] == 'success'):	
-	    if len(geos['org']) > 0:
-	    	result = geos['org'] + "; "
-	    if len(geos['isp']) > 0:
-	    	result = result + geos['isp'] + "; "
-	    if len(geos['city']) > 0:
-	    	result = result + geos['city'] + "; "
-	    if len(geos['regionName']) > 0:
-	    	result = result + geos['regionName'] + "; "
-	    if len(geos['country']) > 0:
-	    	result = result + geos['country']
+    if(geos['status'] == 'success'):    
+        if len(geos['org']) > 0:
+            result = geos['org'] + "; "
+        if len(geos['isp']) > 0:
+            result = result + geos['isp'] + "; "
+        if len(geos['city']) > 0:
+            result = result + geos['city'] + "; "
+        if len(geos['regionName']) > 0:
+            result = result + geos['regionName'] + "; "
+        if len(geos['country']) > 0:
+            result = result + geos['country']
     else:
         # print geos
-    	result = geos['message']
+        result = geos['message']
+    
+    return result
 
+def geos_tohost(index, ipstr, geodesc, geos):
+    result = "{\"n\": %s, \"ip\":\"%s\", \"desc\": \"%s\", \"geo\": {\"lat\": %s, \"lng\": %s4}}," % (index, ipstr, geodesc, geos['lat'], geos['lon'])
     return result
 
 def main():
@@ -78,15 +84,30 @@ def main():
     lines = outputs.splitlines()
 
     print "Parse geolocation from ip-api.com ..."
+    hosts = "let hosts = [\n"
+    idx = 0
     for index, line in enumerate(lines):
         results = re.findall(r"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b", line)
         if results:
-        	ipstr = results[0]
-        	# print ipstr
-        	geos = ip_lookup(ipstr)
-        	# print geos
-        	new_ipstr = "%s (%s)" % (ipstr, geos)
-        	print line.replace(ipstr, new_ipstr)
+            ipstr = results[0]
+            # print ipstr
+            geos = ip_lookup(ipstr)
+            # print geos
+            geodesc = "%s (%s)" % (ipstr, geos_tostring(geos))
+            print line.replace(ipstr, geodesc)
+
+            # generate host 
+            hosts += geos_tohost(idx, ipstr, geodesc, geos) + "\n"
+            idx += 1    
+    hosts += "];\n"
+
+    # write hosts information in "host.js"
+    print "Write google maps information to hosts.js ..."
+    text_file = open("hosts.js", "w")
+    n = text_file.write(hosts)
+    text_file.close()
+
+    print "Now you can open google-maps.html to view traceroute routes in google-map!"
 
 if __name__ == "__main__":
     main()

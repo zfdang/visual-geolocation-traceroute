@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Traceroute mapper</title>
+
+  <meta charset="utf-8">
+  <meta name="author" content="Stefan Sundin">
+  <meta name="description" content="Visualize traceroute on a map.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="origin">
+
+  <link rel="license" href="https://www.gnu.org/licenses/gpl-3.0.html" title="GNU GPL v3 or later">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
+  <script src="https://maps.google.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg"></script>
+  <script src="hosts.js"></script>
+
+<style>
+body {
+  padding: 0 15px;
+  margin-bottom: 100px;
+}
+a {
+  cursor: pointer;
+}
+.container {
+  padding: 0;
+}
+@media (min-width: 768px) {
+  .container {
+    max-width: 770px;
+  }
+}
+#example {
+  color: #337ab7;
+}
+#example:hover {
+  color: #23527c;
+  text-decoration: underline;
+}
+
+header {
+  margin-top: 25px;
+  text-align: center;
+}
+header a {
+  color: black;
+}
+header a:hover {
+  color: black;
+  cursor: default;
+  text-decoration: none;
+}
+header a:focus {
+  color: black;
+  text-decoration: none;
+}
+h2 {
+  border-bottom: 1px solid #ccc;
+}
+textarea {
+  font-family: monospace;
+  min-height: 200px;
+  resize: vertical;
+}
+#map {
+  height: 500px;
+  margin: 1em 0;
+}
+.map-btn {
+  background-color: white;
+  border: 2px solid white;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+  cursor: pointer;
+  margin: 8px;
+  text-align: center;
+  color: rgb(25,25,25);
+  font-family: Roboto, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  padding: 4px 6px;
+}
+a.map-btn:hover {
+  text-decoration: none;
+}
+</style>
+</head>
+<body>
+  <header>
+    <h1 itemprop="name">Traceroute Information with Geolocation</h1>
+  </header>
+
+  <div class="container">
+    <hr>
+    <div id="map"></div>
+  </div>
+
+  <div class="hidden">
+    <div class="map-btn" id="clear-map">Clear map</div>
+    <a class="map-btn" id="permalink">Permalink</a>
+  </div>
+
+<script>
+let map = new google.maps.Map($("#map")[0], {
+  center: { lat: 35, lng: 0 },
+  zoom: 2,
+  mapTypeControl: false,
+  streetViewControl: false
+});
+
+let markers = [];
+
+map.controls[google.maps.ControlPosition.TOP_LEFT].push($("#clear-map")[0]);
+map.controls[google.maps.ControlPosition.TOP_RIGHT].push($("#permalink")[0]);
+
+// store location lookups in a database to prevent duplicate lookups
+// hosts defined in hosts.js
+// let hosts = [
+// {"n": 1, "ip":"111.203.139.66", "geo": {"lat": -20.363, "lng": 131.044}},
+// {"n": 2, "ip":"111.203.139.66", "geo": {"lat": -21.363, "lng": 131.044}},
+// {"n": 3, "ip":"111.203.139.66", "geo": {"lat": -25.363, "lng": 90.044}},
+// {"n": 4, "ip":"111.203.139.66", "geo": {"lat": -25.363, "lng": 165.044}},
+// {"n": 5, "ip":"111.203.139.66", "geo": {"lat": -25.363, "lng": 123.044}},
+// ];
+
+function draw(hosts) {
+
+  // draw markers
+  let bounds = new google.maps.LatLngBounds();
+  for (let i=0; i < hosts.length; i++) {
+    const host = hosts[i];
+    const marker = new google.maps.Marker({
+      map: map,
+      position: host.geo,
+      label: host.n.toString(),
+      title: host.desc,
+      zIndex: host.n,
+    });
+    markers.push(marker);
+    bounds.extend(marker.position);
+  }
+  if (!bounds.isEmpty()) {
+    map.fitBounds(bounds);
+  }
+
+  // draw lines
+  for (let i=1; i < hosts.length; i++) {
+    const host1 = hosts[i-1];
+    const host2 = hosts[i];
+    // console.log("drawing line between", [ db[host1.ip], db[host2.ip] ]);
+    markers.push(new google.maps.Polyline({
+      map: map,
+      path: [ host1.geo, host2.geo ],
+      geodesic: true,
+      strokeColor: "#FF0000",
+      strokeOpacity: 1.0,
+      strokeWeight: 2
+    }));
+  }
+}
+
+draw(hosts);
+
+$("#clear-map").click(function() {
+  markers.forEach(function(marker) {
+    marker.setMap(null);
+  });
+  markers = [];
+});
+$("#permalink").click(function() {
+  if (this.href == "") {
+    alert("Please map a trace first.");
+  }
+});
+
+const qs = window.location.search;
+if (qs[0] == "?") {
+  let params = {};
+  qs.substr(1).split("&").forEach(function(param) {
+    param = param.split("=");
+    params[param[0]] = decodeURIComponent(param[1]);
+  });
+  if (params["trace"]) {
+    $("#trace").val(params["trace"].trim());
+    $("#submit").click();
+    setTimeout(function() {
+      if (markers.length > 0) {
+        $("#map")[0].scrollIntoView();
+      }
+    }, 200);
+  }
+}
+
+</script>
+</body>
+</html>
