@@ -46,7 +46,10 @@ def geos_tostring(geos):
     return result
 
 def geos_tohost(index, ipstr, geodesc, geos):
-    result = "{\"n\": %s, \"ip\":\"%s\", \"desc\": \"%s\", \"geo\": {\"lat\": %s, \"lng\": %s4}}," % (index, ipstr, geodesc, geos['lat'], geos['lon'])
+    if geos['status'] == 'success':
+        result = "{\"n\": %s, \"ip\":\"%s\", \"desc\": \"%s\", \"geo\": {\"lat\": %s, \"lng\": %s4}}," % (index, ipstr, geodesc, geos['lat'], geos['lon'])
+    else:
+        result = ""
     return result
 
 def main():
