@@ -107,7 +107,9 @@ def main():
     n = text_file.write(hosts)
     text_file.close()
 
-    print "Now you can open google-maps.html to view traceroute routes in google-map!"
+    print "Now we will launch browser to open visual traceroute result ..."
+    import webbrowser
+    webbrowser.open('file://' + os.path.realpath("google-maps.html"))
 
 if __name__ == "__main__":
     main()
