@@ -71,7 +71,9 @@ Parse geolocation from ip-api.com ...
  15.|-- 152.70.248.50 (Oracle Cloud Infrastructure (ap-seoul-1); Oracle Corporation; Seoul; Seoul; South Korea)             10.0%    10   65.1  65.9  64.9  67.5   1.0
 ```
 
-## open google-maps.html in browser
+## Open google-maps.html in browser
+
+This file will be opened automatically. If don't, please open google-maps.html manually. 
 
 You will see visual traceroute information like:
 
