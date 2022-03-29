@@ -116,6 +116,15 @@ let markers = [];
 // {"n": 5, "ip":"111.203.139.66", "geo": {"lat": -25.363, "lng": 123.044}},
 // ];
 
+function getzIndex(n, length) {
+  zIndex = n;
+  if (n < length / 2) {
+    zIndex = length - n;
+  }
+  return zIndex;
+}
+
+
 function draw(hosts) {
 
   // draw markers
@@ -127,7 +136,7 @@ function draw(hosts) {
       position: host.geo,
       label: host.n.toString(),
       title: host.desc,
-      zIndex: host.n,
+      zIndex: getzIndex(host.n, hosts.length),
     });
     markers.push(marker);
     bounds.extend(marker.position);
