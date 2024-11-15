@@ -19,7 +19,7 @@ To install mtr, run the command
 
 Once MTR is insstalled, simply open your Terminal app and run this command:
 
-	sudo /usr/local/Cellar/mtr/0.95/sbin/mtr -n -r m1.zfdang.com
+	sudo /opt/homebrew/Cellar/mtr/0.95/sbin/mtr -n -r w2.zfdang.com
 	
 Then you will get report like:
 

@@ -1,15 +1,15 @@
 import getopt,sys
 import os
 import subprocess
-from urllib2 import urlopen
+from urllib.request import urlopen
 import json
 import re
 
 # you might need to change this line to locate mtr command
-mtr_cmd = "/usr/local/Cellar/mtr/0.95/sbin/mtr"
+mtr_cmd = "/opt/homebrew/Cellar/mtr/0.95/sbin/mtr"
 
 def usage():
-	print "$python process.py -h your_host";
+	print("$python process.py -h your_host")
 
 def mtr_report(host, count):
     # returns output as byte string
@@ -76,17 +76,17 @@ def main():
     	sys.exit(0)
 
     # show host information
-    print "Show traceroute information for host (%s)" %(host)
+    print("Show traceroute information for host (%s)" %(host))
 
 	# collect traceroute information
-    print "Use mtr command to generate traceroute informations, please wait ..."
+    print("Use mtr command to generate traceroute informations, please wait ...")
     outputs = mtr_report(host, mtr_count)
     # print outputs
 
     # parse geolocation information
     lines = outputs.splitlines()
 
-    print "Parse geolocation from ip-api.com ..."
+    print("Parse geolocation from ip-api.com ...")
     hosts = "let hosts = [\n"
     idx = 0
     for index, line in enumerate(lines):
@@ -97,7 +97,7 @@ def main():
             geos = ip_lookup(ipstr)
             # print geos
             geodesc = "%s (%s)" % (ipstr, geos_tostring(geos))
-            print line.replace(ipstr, geodesc)
+            print(line.replace(ipstr, geodesc))
 
             # generate host 
             hosts += geos_tohost(idx, ipstr, geodesc, geos) + "\n"
@@ -105,12 +105,12 @@ def main():
     hosts += "];\n"
 
     # write hosts information in "host.js"
-    print "Write google maps information to hosts.js ..."
+    print("Write google maps information to hosts.js ...")
     text_file = open("hosts.js", "w")
     n = text_file.write(hosts)
     text_file.close()
 
-    print "Now we will launch browser to open visual traceroute result ..."
+    print("Now we will launch browser to open visual traceroute result ...")
     import webbrowser
     webbrowser.open('file://' + os.path.realpath("google-maps.html"))
 
