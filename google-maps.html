@@ -96,6 +96,11 @@ a.map-btn:hover {
     <div id="map"></div>
   </div>
 
+  <div class="container">
+    <hr>
+    <textarea id="hostsContent" rows="30" cols="80"></textarea>
+  </div>
+
 <script>
 let map = new google.maps.Map($("#map")[0], {
   center: { lat: 35, lng: 0 },
@@ -115,6 +120,10 @@ let markers = [];
 // {"n": 4, "ip":"111.203.139.66", "geo": {"lat": -25.363, "lng": 165.044}},
 // {"n": 5, "ip":"111.203.139.66", "geo": {"lat": -25.363, "lng": 123.044}},
 // ];
+
+// Display the content of hosts variable in the textarea
+document.getElementById('hostsContent').value = JSON.stringify(hosts, null, 2);
+
 
 function getzIndex(n, length) {
   zIndex = n;
